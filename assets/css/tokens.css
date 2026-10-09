@@ -1,0 +1,92 @@
+/* =====================================================================
+   tokens.css — DESIGN TOKENS (variáveis de design)
+   ---------------------------------------------------------------------
+   Toda cor, fonte, espaçamento e raio do projeto nasce aqui.
+   Nenhum outro arquivo escreve uma cor "solta" (ex.: #ff8a1f): todos
+   usam var(--nome). Assim, mudar a identidade visual = mexer em um
+   arquivo só.
+
+   Paleta inspirada no tema:
+   - Noite de Konoha (azuis escuros) como fundo
+   - Laranja do uniforme do Naruto como cor de ação
+   - Pergaminho (bege) para destacar a cotação principal
+   - Verde-folha para ALTA, vermelho-Akatsuki para QUEDA
+
+   Contraste verificado (WCAG 2.1 AA): texto ≥ 4,5:1, componentes
+   e textos grandes ≥ 3:1. Detalhes no README, seção "Acessibilidade".
+   ===================================================================== */
+
+:root {
+  color-scheme: dark;
+
+  /* ---------- Superfícies (noite de Konoha) ---------- */
+  --bg: #0d1220;            /* fundo da página */
+  --bg-alt: #111a2e;        /* faixas alternadas */
+  --surface: #172038;       /* cartões */
+  --surface-2: #1f2a47;     /* cartões elevados, tooltip */
+  --border: #2a3657;        /* bordas decorativas */
+  --border-strong: #7382ab; /* contorno de controles interativos (≥ 3:1) */
+
+  /* ---------- Texto sobre fundo escuro ---------- */
+  --text: #f5efe3;
+  --text-muted: #b9c1d6;
+
+  /* ---------- Laranja (ação / marca) ---------- */
+  --laranja: #ff8a1f;       /* fundo de botões e linha do gráfico */
+  --laranja-texto: #ffa552; /* laranja usado COMO TEXTO no escuro */
+  --laranja-tinta: #1c0f02; /* texto escrito SOBRE o laranja */
+  --laranja-suave: rgba(255, 138, 31, 0.14);
+
+  /* ---------- Pergaminho ---------- */
+  --papel: #f4e7c9;
+  --papel-sombra: #e6d2a4;
+  --tinta: #2a1c0d;         /* texto sobre o papel */
+  --tinta-suave: #5c4630;   /* texto secundário sobre o papel */
+  --madeira: #6b3a1c;       /* rolos do pergaminho */
+  --madeira-clara: #9a5a2c;
+
+  /* ---------- Sinais de variação ---------- */
+  --alta: #5ad69a;          /* sobre fundo escuro */
+  --queda: #ff8585;
+  --neutra: #c3cadc;
+  --alta-papel: #0e6237;    /* sobre o pergaminho */
+  --queda-papel: #9e1219;
+  --neutra-papel: #5c4630;
+
+  /* ---------- Foco do teclado ---------- */
+  --foco: #ffd166;
+
+  /* ---------- Tipografia ---------- */
+  --font-titulo: 'Shojumaru', 'Impact', 'Arial Black', system-ui, sans-serif;
+  --font-texto: 'Nunito', system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif;
+
+  --fs-xs: 0.8125rem;   /* 13px */
+  --fs-sm: 0.9375rem;   /* 15px */
+  --fs-md: 1rem;        /* 16px */
+  --fs-lg: 1.1875rem;   /* 19px */
+  --fs-xl: clamp(1.5rem, 1.1rem + 1.6vw, 2.1rem);
+  --fs-hero: clamp(2.3rem, 1.2rem + 4.6vw, 4.4rem);
+  --fs-valor: clamp(1.9rem, 1.2rem + 3vw, 3.2rem);
+
+  /* ---------- Espaçamento (escala de 4px) ---------- */
+  --sp-1: 0.25rem;
+  --sp-2: 0.5rem;
+  --sp-3: 0.75rem;
+  --sp-4: 1rem;
+  --sp-5: 1.5rem;
+  --sp-6: 2rem;
+  --sp-7: 3rem;
+  --sp-8: 4.5rem;
+
+  /* ---------- Formas ---------- */
+  --raio-sm: 8px;
+  --raio: 14px;
+  --raio-lg: 22px;
+  --raio-pill: 999px;
+  --sombra: 0 10px 30px rgba(0, 0, 0, 0.35);
+  --sombra-papel: 0 18px 40px rgba(0, 0, 0, 0.45);
+
+  /* ---------- Layout ---------- */
+  --largura-max: 1180px;
+  --toque-min: 44px;  /* alvo de toque mínimo (WCAG 2.5.5 / Apple HIG) */
+}

@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Meu jeito ninja de Investir · CryptoDattebayo</title>
+  <meta name="description" content="Acompanhe a cotação de Bitcoin, Ethereum, Real e Dólar em tempo real. Uma aplicação CryptoDattebayo para o ex-Hokage Uzumaki Naruto.">
+  <meta name="theme-color" content="#0d1220">
+  <link rel="icon" type="image/png" href="assets/img/favicon.png">
+
+  <!-- Fontes: Shojumaru (títulos, estilo pincel japonês) e Nunito (texto).
+       Se estiver offline, o CSS cai para fontes do sistema (ver tokens.css). -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=Shojumaru&display=swap" rel="stylesheet">
+
+  <!-- A API é chamada direto do navegador; o preconnect adianta o handshake TLS. -->
+  <link rel="preconnect" href="https://economia.awesomeapi.com.br" crossorigin>
+
+  <link rel="stylesheet" href="assets/css/tokens.css">
+  <link rel="stylesheet" href="assets/css/icones.css">
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+  <a class="skip-link" href="#painel">Pular para as cotações</a>
+
+  <!-- ===================== CABEÇALHO ===================== -->
+  <header class="topbar">
+    <div class="container topbar__inner">
+      <a class="brand" href="#" aria-label="CryptoDattebayo — início">
+        <span class="icon icon--folha brand__icon" aria-hidden="true"></span>
+        <span class="brand__name">Crypto<strong>Dattebayo</strong></span>
+      </a>
+
+      <!-- Status do sistema (heurística de Nielsen nº 1): o usuário sempre sabe
+           quando os dados chegaram e quando serão atualizados. -->
+      <div class="refresh">
+        <p class="refresh__status" id="refresh-status">
+          <span class="refresh__dot" id="refresh-dot" aria-hidden="true"></span>
+          <span id="refresh-text">Conectando à API…</span>
+        </p>
+        <button class="btn btn--ghost" type="button" id="btn-refresh">
+          <span class="icon icon--selo btn__icon" aria-hidden="true"></span>
+          Atualizar agora
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <!-- ===================== HERO ===================== -->
+    <section class="hero" aria-labelledby="titulo-site">
+      <div class="container hero__inner">
+        <div class="hero__text">
+          <p class="kicker">CryptoDattebayo apresenta</p>
+          <h1 class="hero__title" id="titulo-site">Meu jeito ninja <span>de Investir</span></h1>
+          <p class="hero__lead">
+            Depois de anos protegendo Konoha como <strong>Hokage</strong>, Uzumaki Naruto
+            mudou de ramo. Agora a missão é outra: acompanhar a cotação de
+            <strong>Bitcoin</strong>, <strong>Ethereum</strong>, <strong>Real</strong> e
+            <strong>Dólar</strong> sem nunca voltar atrás na própria palavra.
+          </p>
+          <ul class="hero__facts" aria-label="Resumo da aplicação">
+            <li><strong>3</strong> pares da missão + 2 extras</li>
+            <li>Valor de <strong>compra (bid)</strong> como referência</li>
+            <li>Atualização a cada <strong>60 s</strong></li>
+          </ul>
+          <a class="btn btn--primary" href="#painel">Ver cotações, dattebayo!</a>
+        </div>
+
+        <div class="hero__art" aria-hidden="true">
+          <span class="icon icon--selo hero__seal"></span>
+          <img class="hero__naruto" src="assets/img/naruto-hokage.webp" alt="" width="496" height="1200">
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== PAINEL PRINCIPAL ===================== -->
+    <section class="painel" id="painel" aria-labelledby="titulo-painel" tabindex="-1">
+      <div class="container">
+        <header class="section-head">
+          <p class="kicker">Pergaminho de missões</p>
+          <h2 id="titulo-painel">Escolha o par de moedas</h2>
+          <p class="section-head__desc">
+            Selecione a moeda que Naruto quer acompanhar e em qual moeda ela será cotada.
+            Todos os valores mostram a unidade monetária (ex.: <span class="nowrap">200 BRL</span>).
+          </p>
+        </header>
+
+        <div class="painel__grid">
+          <!-- --------- Seletor de pares --------- -->
+          <form class="pares" id="form-pares" aria-describedby="pares-ajuda">
+            <fieldset class="pares__grupo">
+              <legend class="pares__legenda">Pares da missão</legend>
+              <div class="pares__lista" id="pares-missao"><!-- preenchido por app.js --></div>
+            </fieldset>
+            <fieldset class="pares__grupo">
+              <legend class="pares__legenda">Extras <span class="tag">Ethereum</span></legend>
+              <div class="pares__lista" id="pares-extras"><!-- preenchido por app.js --></div>
+            </fieldset>
+            <p class="pares__ajuda" id="pares-ajuda">Use as setas do teclado para trocar de par.</p>
+          </form>
+
+          <!-- --------- Pergaminho com a cotação --------- -->
+          <article class="pergaminho" id="cotacao" aria-labelledby="cotacao-titulo" aria-busy="true">
+            <div class="pergaminho__rolo pergaminho__rolo--topo" aria-hidden="true"></div>
+
+            <div class="pergaminho__corpo">
+              <header class="cotacao__head">
+                <h3 class="cotacao__titulo" id="cotacao-titulo">Carregando…</h3>
+                <p class="cotacao__par" id="cotacao-par"></p>
+              </header>
+
+              <!-- Estado: carregando -->
+              <div class="estado estado--carregando" id="estado-carregando">
+                <span class="icon icon--selo estado__selo" aria-hidden="true"></span>
+                <p>Concentrando chakra… buscando a cotação.</p>
+              </div>
+
+              <!-- Estado: erro -->
+              <div class="estado estado--erro" id="estado-erro" hidden>
+                <img class="estado__nuvem" src="assets/img/nuvem-akatsuki.png" alt="" width="120" height="80">
+                <p class="estado__titulo">A Akatsuki interceptou a mensagem!</p>
+                <p class="estado__texto" id="erro-texto">Não foi possível falar com a API de moedas.</p>
+                <button class="btn btn--ink" type="button" id="btn-tentar">Tentar de novo</button>
+              </div>
+
+              <!-- Estado: pronto -->
+              <div class="cotacao" id="estado-pronto" hidden>
+                <p class="cotacao__rotulo">
+                  <span id="cotacao-unidade">1 BTC</span> vale
+                  <span class="cotacao__bid-tag" title="Valor de compra informado pela API">compra · bid</span>
+                </p>
+                <p class="cotacao__valor" id="cotacao-valor">—</p>
+
+                <p class="variacao" id="cotacao-variacao">
+                  <span class="variacao__icone" aria-hidden="true"></span>
+                  <span class="variacao__texto"></span>
+                </p>
+
+                <dl class="stats">
+                  <div class="stats__item">
+                    <dt>Venda (ask)</dt>
+                    <dd id="stat-ask">—</dd>
+                  </div>
+                  <div class="stats__item">
+                    <dt>Máxima do dia</dt>
+                    <dd id="stat-high">—</dd>
+                  </div>
+                  <div class="stats__item">
+                    <dt>Mínima do dia</dt>
+                    <dd id="stat-low">—</dd>
+                  </div>
+                  <div class="stats__item">
+                    <dt>Variação (bid)</dt>
+                    <dd id="stat-varbid">—</dd>
+                  </div>
+                </dl>
+
+                <p class="cotacao__data">
+                  Cotação de <time id="cotacao-data" datetime="">—</time>
+                </p>
+                <p class="aviso-desatualizado" id="aviso-desatualizado" hidden>
+                  Sem conexão no momento — mostrando a última cotação recebida.
+                </p>
+              </div>
+            </div>
+
+            <div class="pergaminho__rolo pergaminho__rolo--base" aria-hidden="true"></div>
+          </article>
+
+          <!-- --------- Calculadora ninja (conversor) --------- -->
+          <section class="card conversor" aria-labelledby="conversor-titulo">
+            <h3 class="card__titulo" id="conversor-titulo">
+              <span class="icon icon--folha card__icone" aria-hidden="true"></span>
+              Calculadora ninja
+            </h3>
+            <p class="card__desc">Quanto vale o seu ryō? Digite um valor e veja a conversão pelo preço de compra.</p>
+
+            <div class="conversor__linha">
+              <label class="campo" for="conversor-valor">
+                <span class="campo__rotulo">Valor em <span id="conversor-de-nome">Bitcoin</span></span>
+                <span class="campo__caixa">
+                  <input class="campo__input" id="conversor-valor" type="text" inputmode="decimal"
+                         autocomplete="off" value="1" aria-describedby="conversor-ajuda conversor-erro">
+                  <span class="campo__unidade" id="conversor-de">BTC</span>
+                </span>
+              </label>
+
+              <button class="btn btn--icone" type="button" id="btn-inverter"
+                      aria-label="Inverter direção da conversão" title="Inverter direção">
+                <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" focusable="false">
+                  <path d="M7 4 3 8l4 4M3 8h14M17 20l4-4-4-4M21 16H7" fill="none" stroke="currentColor"
+                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </button>
+            </div>
+            <p class="campo__ajuda" id="conversor-ajuda">Use vírgula para decimais, ex.: 0,5</p>
+            <p class="campo__erro" id="conversor-erro" role="alert"></p>
+
+            <div class="atalhos" id="conversor-atalhos" role="group" aria-label="Valores rápidos"></div>
+
+            <output class="conversor__resultado" id="conversor-resultado" for="conversor-valor" aria-live="polite">—</output>
+          </section>
+
+          <!-- --------- Histórico (gráfico) --------- -->
+          <section class="card historico" aria-labelledby="historico-titulo">
+            <div class="historico__head">
+              <h3 class="card__titulo" id="historico-titulo">Histórico de compra (bid)</h3>
+              <div class="segmentado" role="group" aria-label="Período do histórico" id="historico-periodo">
+                <button type="button" data-dias="7" aria-pressed="false">7 dias</button>
+                <button type="button" data-dias="15" aria-pressed="true">15 dias</button>
+                <button type="button" data-dias="30" aria-pressed="false">30 dias</button>
+              </div>
+            </div>
+            <p class="card__desc" id="historico-resumo">Carregando histórico…</p>
+
+            <div class="grafico" id="grafico">
+              <!-- O SVG é desenhado por chart.js -->
+            </div>
+
+            <details class="tabela-dados">
+              <summary>Ver dados em tabela</summary>
+              <div class="tabela-dados__scroll" tabindex="0" role="region" aria-label="Tabela do histórico">
+                <table>
+                  <caption class="sr-only" id="tabela-legenda">Histórico diário</caption>
+                  <thead><tr><th scope="col">Data</th><th scope="col">Compra (bid)</th></tr></thead>
+                  <tbody id="tabela-corpo"></tbody>
+                </table>
+              </div>
+            </details>
+          </section>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== PAINEL GERAL ===================== -->
+    <section class="geral" aria-labelledby="titulo-geral">
+      <div class="container">
+        <header class="section-head">
+          <p class="kicker">Visão do Hokage</p>
+          <h2 id="titulo-geral">Todos os pares de uma vez</h2>
+          <p class="section-head__desc">Valor de compra e variação de hoje. Toque em um cartão para abrir o par no pergaminho.</p>
+        </header>
+        <ul class="geral__lista" id="geral-lista"><!-- preenchido por app.js --></ul>
+      </div>
+    </section>
+
+    <!-- ===================== LEGENDA DOS SINAIS ===================== -->
+    <section class="sinais" aria-labelledby="titulo-sinais">
+      <div class="container sinais__inner">
+        <figure class="sinais__arte">
+          <img src="assets/img/naruto-vila.webp" alt="Naruto sorridente estendendo o punho em frente à vila de Konoha e ao monte dos Hokages."
+               width="736" height="1308" loading="lazy">
+        </figure>
+        <div class="sinais__texto">
+          <p class="kicker">Como ler os sinais</p>
+          <h2 id="titulo-sinais">Folha sobe, nuvem desce</h2>
+          <p>Cada cotação mostra a variação do dia com um <strong>símbolo</strong>, uma <strong>seta</strong>
+             e o <strong>texto</strong> — a informação nunca depende só da cor.</p>
+          <ul class="sinais__lista">
+            <li>
+              <span class="variacao variacao--alta"><span class="variacao__icone" aria-hidden="true"></span><span>▲ Alta</span></span>
+              <p>A folha de Konoha indica que a moeda <strong>valorizou</strong> no dia.</p>
+            </li>
+            <li>
+              <span class="variacao variacao--queda"><span class="variacao__icone" aria-hidden="true"></span><span>▼ Queda</span></span>
+              <p>A nuvem da Akatsuki indica que a moeda <strong>desvalorizou</strong> no dia.</p>
+            </li>
+            <li>
+              <span class="variacao variacao--neutra"><span class="variacao__icone" aria-hidden="true"></span><span>= Estável</span></span>
+              <p>O selo indica variação de <strong>0,00%</strong>.</p>
+            </li>
+          </ul>
+          <p class="sinais__nota">
+            O valor de referência é sempre o <strong>bid</strong> (preço de compra) retornado pela
+            AwesomeAPI, como pede o enunciado da missão.
+          </p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ===================== RODAPÉ ===================== -->
+  <footer class="rodape">
+    <div class="container rodape__inner">
+      <p>
+        Dados: <a href="https://docs.awesomeapi.com.br/api-de-moedas" target="_blank" rel="noopener">AwesomeAPI — API de Moedas</a>.
+        Cotações com atraso de até 1 minuto.
+      </p>
+      <p>Projeto acadêmico · Usabilidade, Desenvolvimento Web, Mobile e Jogos Digitais · UniCuritiba.
+         Não é recomendação de investimento.</p>
+      <p>Desenvolvido por Maximo Di Giorgio Silva.</p>
+    </div>
+  </footer>
+
+  <!-- Região invisível que anuncia mudanças importantes para leitores de tela -->
+  <div class="sr-only" aria-live="polite" id="anuncio"></div>
+
+  <!-- Scripts clássicos (sem type="module") para funcionar abrindo o arquivo direto
+       (file://). A ordem importa: cada arquivo usa o que os anteriores definiram. -->
+  <script src="assets/js/config.js"></script>
+  <script src="assets/js/format.js"></script>
+  <script src="assets/js/api.js"></script>
+  <script src="assets/js/chart.js"></script>
+  <script src="assets/js/app.js"></script>
+</body>
+</html>
